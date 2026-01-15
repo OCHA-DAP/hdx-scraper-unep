@@ -13,8 +13,9 @@ from hdx.data.user import User
 from hdx.facades.infer_arguments import facade
 from hdx.utilities.downloader import Download
 from hdx.utilities.path import (
+    progress_storing_folder,
     script_dir_plus_file,
-    wheretostart_tempdir_batch, progress_storing_folder,
+    wheretostart_tempdir_batch,
 )
 from hdx.utilities.retriever import Retrieve
 

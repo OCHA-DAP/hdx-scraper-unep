@@ -3,10 +3,8 @@
 
 import logging
 import os
-from os import makedirs
-from os.path import join, basename
+from os.path import basename, join
 from pathlib import Path
-from typing import Dict, List, Tuple, Set, Optional
 from urllib.parse import urlencode
 
 from geopandas import read_file
@@ -16,9 +14,7 @@ from hdx.data.dataset import Dataset
 from hdx.data.hdxobject import HDXError
 from hdx.data.resource import Resource
 from hdx.location.country import Country
-from hdx.utilities.dateparse import parse_date
 from hdx.utilities.retriever import Retrieve
-from slugify import slugify
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +27,7 @@ class Pipeline:
         self._tempdir = tempdir
         os.environ["OGR_ORGANIZE_POLYGONS"] = "SKIP"
 
-    def get_countries(self, layer_url: str) -> Set:
+    def get_countries(self, layer_url: str) -> set:
         query = {
             "f": "json",
             "returnGeometry": False,
@@ -44,7 +40,7 @@ class Pipeline:
         )
         return {x["attributes"]["iso3"] for x in response["features"]}
 
-    def get_layersinfo(self) -> Tuple[Dict, List]:
+    def get_layersinfo(self) -> tuple[dict, list]:
         """
         Get layers
         """
@@ -69,7 +65,7 @@ class Pipeline:
             countries.update(self.get_countries(f"{self._url}/{layer_id}"))
         return layer_id_to_type, [{"iso3": country} for country in sorted(countries)]
 
-    def get_date_range(self, layer_url: str, countryiso: str) -> Tuple[int, int]:
+    def get_date_range(self, layer_url: str, countryiso: str) -> tuple[int, int]:
         """
         Get min & max dates using outStatistics from ArcGIS API
         """
@@ -104,7 +100,9 @@ class Pipeline:
 
         return start_year, end_year
 
-    def generate_geojson(self, gdf: GeoDataFrame, base_filename: str, layer_type: str) -> Resource:
+    def generate_geojson(
+        self, gdf: GeoDataFrame, base_filename: str, layer_type: str
+    ) -> Resource:
         filename = f"{base_filename}_{layer_type}.geojson"
         geojson_resource = Resource(
             {
@@ -118,9 +116,16 @@ class Pipeline:
         geojson_resource.set_file_to_upload(filepath)
         return geojson_resource
 
-    def generate_csv(self, gdf: GeoDataFrame, base_filename: str, layer_type: str) -> Resource:
+    def generate_csv(
+        self, gdf: GeoDataFrame, base_filename: str, layer_type: str
+    ) -> Resource:
         filename = f"{base_filename}_{layer_type}.csv"
-        csv_resource = Resource({"name": filename, "description": f"CSV format of the summary of {layer_type}"})
+        csv_resource = Resource(
+            {
+                "name": filename,
+                "description": f"CSV format of the summary of {layer_type}",
+            }
+        )
         csv_resource.set_format("csv")
         filepath = join(self._tempdir, filename)
         df_attributes = gdf.drop(columns="geometry")
@@ -132,7 +137,7 @@ class Pipeline:
         gpkg_resource = Resource(
             {
                 "name": basename(gpkg_filepath),
-                "description": f"GPKG of point and polygon data",
+                "description": "GPKG of point and polygon data",
             }
         )
         gpkg_resource.set_format("gpkg")
@@ -148,7 +153,9 @@ class Pipeline:
         }
         return Resource(geoservice_resource)
 
-    def generate_dataset(self, layer_id_to_type: Dict, countryiso: str) -> Optional[Dataset]:
+    def generate_dataset(
+        self, layer_id_to_type: dict, countryiso: str
+    ) -> Dataset | None:
         """
         Get layer data from ArcGIS API and create data outputs for HDX
         Return dataset
