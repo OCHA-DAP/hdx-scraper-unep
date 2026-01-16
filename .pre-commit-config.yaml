@@ -23,9 +23,3 @@ repos:
     hooks:
       # Ensure the lockfile is up-to-date with pyproject.toml
       - id: uv-lock
-#
-#      # 2. Export the lockfile to requirements.txt (replacing pip-compile)
-#      - id: uv-export
-#        name: export requirements.txt
-#        # Export 'project' dependencies (default) to requirements.txt
-#        args: ["--format=requirements-txt", "--no-dev", "--output-file=requirements.txt"]

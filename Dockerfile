@@ -52,5 +52,6 @@ ENV VIRTUAL_ENV=/app/.venv
 COPY --from=builder /app/.venv ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# 3. Run
-CMD ["python3", "-m", "hdx.scraper.unep"]
+COPY run.py .
+
+CMD ["python3", "run.py"]
