@@ -4,22 +4,28 @@
 FROM public.ecr.aws/unocha/python:3.13-stable AS builder
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Keep WORKDIR consistent to avoid confusion, though less critical with non-editable
 WORKDIR /app
 
-# 1. Install system deps
+# 1. Install System Dependencies
+#    We MUST install these C++ compilers and headers so pyogrio can build
+#    from source on Alpine Linux.
 RUN --mount=type=cache,target=/var/cache/apk \
-    apk add --upgrade git
+    apk add --upgrade \
+    git \
+    build-base \
+    gdal-dev \
+    geos-dev \
+    proj-dev \
+    linux-headers
 
-# 2. Install Dependencies (Cached Layer)
+# 2. Install Dependencies
 COPY pyproject.toml uv.lock ./
-#    --no-install-project: Installs libraries (pandas, etc.) but NOT your code yet
+#    --compile: Optimizes startup time
 RUN uv sync --frozen --no-dev --no-install-project --compile
 
 # 3. Install Your Project (Non-Editable)
 COPY . .
-#    We use 'uv pip install' here to force a non-editable install into the venv.
-#    This packs your code into /app/.venv/lib/python3.13/site-packages/
+#    Installs your code into site-packages so we don't need 'COPY . .' later
 RUN uv pip install --no-deps .
 
 # ----------------------------------------------------------------------------
@@ -27,13 +33,24 @@ RUN uv pip install --no-deps .
 # ----------------------------------------------------------------------------
 FROM public.ecr.aws/unocha/python:3.13-stable
 
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# 1. Copy the Virtual Environment
-#    Since we did a non-editable install, your code is INSIDE this folder now.
+# 1. Install Runtime Libraries
+#    Stage 2 doesn't need compilers, but it needs the shared libraries (gdal, geos)
+#    to run the code we built in Stage 1.
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --upgrade \
+    gdal \
+    geos \
+    proj
+
+# 2. Copy the Virtual Environment
 ENV VIRTUAL_ENV=/app/.venv
 COPY --from=builder /app/.venv ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# 2. Run
-CMD ["python3", "run.py"]
+# 3. Run
+CMD ["python3", "-m", "hdx.scraper.unep"]
