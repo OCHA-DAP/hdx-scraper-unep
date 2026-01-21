@@ -169,7 +169,7 @@ class Pipeline:
             dataset.add_country_location(countryiso)
         except HDXError:
             logger.error(f"Couldn't find country {countryiso}, skipping")
-            return
+            return None
         base_filename = self._configuration["base_filename"]
         gpkg_filepath = join(self._tempdir, f"{base_filename}.gpkg")
         Path(gpkg_filepath).unlink(missing_ok=True)
@@ -193,6 +193,8 @@ class Pipeline:
             }
             query_url = f"{layer_url}/query?{urlencode(query)}"
             logger.info(f"Querying {query_url}")
+            if self._retriever.save or self._retriever.use_saved:
+                query_url = str(self._retriever.download_file(query_url))
             gdf = read_file("ESRIJSON:" + query_url)
             logger.info(f"Adding GPKG data for {layer_type}")
             gdf.to_file(gpkg_filepath, layer=layer_type, driver="GPKG")
@@ -202,6 +204,10 @@ class Pipeline:
             resources.append(self.generate_csv(gdf, base_filename, layer_type))
             logger.info(f"Adding GeoService for {layer_type}")
             resources.append(self.generate_geoservice(layer_url, layer_type))
+
+        if len(start_years) == 0:
+            logger.error(f"No data for {countryiso}, skipping")
+            return None
 
         resources.insert(0, self.generate_gpkg(gpkg_filepath))
         dataset.preview_off()

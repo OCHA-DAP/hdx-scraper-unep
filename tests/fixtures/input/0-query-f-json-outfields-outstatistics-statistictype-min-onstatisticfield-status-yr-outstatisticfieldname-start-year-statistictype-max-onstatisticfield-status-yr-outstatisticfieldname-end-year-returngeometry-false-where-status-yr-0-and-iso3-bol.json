@@ -1,0 +1,1 @@
+{"displayFieldName": "", "fieldAliases": {"start_year": "start_year", "end_year": "end_year"}, "fields": [{"name": "start_year", "type": "esriFieldTypeInteger", "alias": "start_year"}, {"name": "end_year", "type": "esriFieldTypeInteger", "alias": "end_year"}], "features": [{"attributes": {"start_year": 1977, "end_year": 2013}}]}

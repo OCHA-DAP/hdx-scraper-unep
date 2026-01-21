@@ -10,7 +10,7 @@ dataset_source: UNEP
 package_creator: HDX Data Systems Team
 private: False
 maintainer: 196196be-6037-4488-8b71-d786adf4c081
-owner_org:  d1beab07-c452-4877-8c6d-c7ab3d086ecd
+owner_org:  ca802a27-cc96-4c7b-aab2-a494a0fa64c9
 data_update_frequency: 30
 notes: |
   The World Database on Protected Areas (WDPA) is the most comprehensive global database of marine and terrestrial protected areas.

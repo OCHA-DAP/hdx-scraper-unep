@@ -44,7 +44,7 @@ def main(
     """
     logger.info(f"##### {_LOOKUP} version {__version__} ####")
     configuration = Configuration.read()
-    User.check_current_user_write_access("d1beab07-c452-4877-8c6d-c7ab3d086ecd")
+    User.check_current_user_write_access("ca802a27-cc96-4c7b-aab2-a494a0fa64c9")
 
     with wheretostart_tempdir_batch(folder=_LOOKUP) as info:
         tempdir = info["folder"]
@@ -58,9 +58,6 @@ def main(
                 use_saved=use_saved,
             )
             pipeline = Pipeline(configuration, retriever, tempdir)
-            #
-            # Steps to generate dataset
-            #
             layer_id_to_type, countries = pipeline.get_layersinfo()
             for _, country in progress_storing_folder(info, countries, "iso3"):
                 countryiso = country["iso3"]
@@ -74,7 +71,6 @@ def main(
                     dataset.create_in_hdx(
                         remove_additional_resources=True,
                         match_resource_order=False,
-                        hxl_update=False,
                         updated_by_script=_UPDATED_BY_SCRIPT,
                         batch=info["batch"],
                     )

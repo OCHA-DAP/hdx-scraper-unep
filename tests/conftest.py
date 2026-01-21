@@ -34,9 +34,7 @@ def configuration(config_dir):
     # Change locations below to match those needed in tests
     Locations.set_validlocations(
         [
-            {"name": "afg", "title": "Afghanistan"},
-            {"name": "sdn", "title": "Sudan"},
-            {"name": "world", "title": "World"},
+            {"name": "bol", "title": "Bolivia (Plurinational State of)"},
         ]
     )
     Country.countriesdata(False)
