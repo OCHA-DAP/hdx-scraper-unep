@@ -50,7 +50,7 @@ class TestPipeline:
                     "organisations, academia and industry. More on "
                     "methodology can be found "
                     "[here](https://www.protectedplanet.net/en/thematic-areas/WDPCA?tab=Methodology).\n",
-                    "name": "unep_WDPCA_bol",
+                    "name": "unep_wdpca_bol",
                     "notes": "The World Database on Protected and Conserved Areas (WDPCA) is the "
                     "most comprehensive global database of marine and terrestrial "
                     "protected areas. It is a joint project between UN Environment "

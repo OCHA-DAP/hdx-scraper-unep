@@ -162,7 +162,7 @@ class Pipeline:
         """
         # Dataset info
         countryname = Country.get_country_name_from_iso3(countryiso)
-        dataset_name = f"unep_WDPCA_{countryiso.lower()}"
+        dataset_name = f"unep_wdpca_{countryiso.lower()}"
         title = f"Protected and Conserved Areas (WDPCA) in {countryname}"
         dataset = Dataset({"name": dataset_name, "title": title})
         try:
