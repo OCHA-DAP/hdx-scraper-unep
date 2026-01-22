@@ -1,5 +1,6 @@
 # Collector specific configuration
 url: "https://data-gis.unep-wcmc.org/server/rest/services/ProtectedPlanet/WDPCA/FeatureServer"
-base_filename: "protected_areas_WDPA"
+base_filename: "protected_conserved_areas_WDPCA"
 tags:
+  - "environment"
   - "geodata"

@@ -41,47 +41,55 @@ class TestPipeline:
                     "license_id": "cc-by-igo",
                     "maintainer": "196196be-6037-4488-8b71-d786adf4c081",
                     "methodology": "Other",
-                    "methodology_other": "The WDPA is a joint project between UN Environment "
+                    "methodology_other": "The WDPCA is a joint project between UN Environment "
                     "Programme and the International Union for Conservation "
-                    "of Nature (IUCN). The compilation\n"
-                    "and management of the WDPA is carried out by UN "
-                    "Environment Programme World Conservation Monitoring "
-                    "Centre (UNEP-WCMC), in collaboration\n"
-                    "with governments, non-governmental organisations, "
-                    "academia and industry. More on methodology can be "
-                    "found\n"
-                    "[here](https://www.protectedplanet.net/en/thematic-areas/wdpa?tab=Methodology).\n",
-                    "name": "unep_wdpa_bol",
-                    "notes": "The World Database on Protected Areas (WDPA) is the most "
-                    "comprehensive global database of marine and terrestrial protected "
-                    "areas.\n"
-                    "It is a joint project between UN Environment Programme and the "
-                    "International Union for Conservation of Nature (IUCN), and is "
-                    "managed by\n"
-                    "UN Environment Programme World Conservation Monitoring Centre "
-                    "(UNEP-WCMC), in collaboration with governments, non-governmental "
-                    "organisations,\n"
-                    "academia and industry.The WDPA is updated on a monthly basis\n",
+                    "of Nature (IUCN). The compilation and management of the "
+                    "WDPCA is carried out by UN Environment Programme World "
+                    "Conservation Monitoring Centre (UNEP-WCMC), in "
+                    "collaboration with governments, non-governmental "
+                    "organisations, academia and industry. More on "
+                    "methodology can be found "
+                    "[here](https://www.protectedplanet.net/en/thematic-areas/WDPCA?tab=Methodology).\n",
+                    "name": "unep_WDPCA_bol",
+                    "notes": "The World Database on Protected and Conserved Areas (WDPCA) is the "
+                    "most comprehensive global database of marine and terrestrial "
+                    "protected areas. It is a joint project between UN Environment "
+                    "Programme and the International Union for Conservation of Nature "
+                    "(IUCN), and is managed by UN Environment Programme World "
+                    "Conservation Monitoring Centre (UNEP-WCMC), in collaboration with "
+                    "governments, non-governmental organisations, academia and "
+                    "industry.\n",
                     "owner_org": "ca802a27-cc96-4c7b-aab2-a494a0fa64c9",
                     "package_creator": "HDX Data Systems Team",
                     "private": False,
-                    "title": "Protected Areas (WDPA) in Bolivia (Plurinational State of)",
+                    "tags": [
+                        {
+                            "name": "environment",
+                            "vocabulary_id": "b891512e-9516-4bf5-962a-7a289772a2a1",
+                        },
+                        {
+                            "name": "geodata",
+                            "vocabulary_id": "b891512e-9516-4bf5-962a-7a289772a2a1",
+                        },
+                    ],
+                    "title": "Protected and Conserved Areas (WDPCA) in Bolivia (Plurinational "
+                    "State of)",
                 }
                 assert dataset.get_resources() == [
                     {
                         "description": "GPKG of point and polygon data",
                         "format": "geopackage",
-                        "name": "protected_areas_WDPA.gpkg",
+                        "name": "protected_conserved_areas_WDPCA.gpkg",
                     },
                     {
                         "description": "GeoJSON format of the summary of points",
                         "format": "geojson",
-                        "name": "protected_areas_WDPA_points.geojson",
+                        "name": "protected_conserved_areas_WDPCA_points.geojson",
                     },
                     {
                         "description": "CSV format of the summary of points",
                         "format": "csv",
-                        "name": "protected_areas_WDPA_points.csv",
+                        "name": "protected_conserved_areas_WDPCA_points.csv",
                     },
                     {
                         "description": "ArcGIS Map Service of the summary of points",
@@ -93,12 +101,12 @@ class TestPipeline:
                         "dataset_preview_enabled": "True",
                         "description": "GeoJSON format of the summary of polygons",
                         "format": "geojson",
-                        "name": "protected_areas_WDPA_polygons.geojson",
+                        "name": "protected_conserved_areas_WDPCA_polygons.geojson",
                     },
                     {
                         "description": "CSV format of the summary of polygons",
                         "format": "csv",
-                        "name": "protected_areas_WDPA_polygons.csv",
+                        "name": "protected_conserved_areas_WDPCA_polygons.csv",
                     },
                     {
                         "description": "ArcGIS Map Service of the summary of polygons",
