@@ -3,9 +3,9 @@
 name: Run script
 
 on:
-  workflow_dispatch: # add run button in github
-#  schedule:
-#    - cron: "32 10 * * *"
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "32 10 * * *"
 
 jobs:
   run:
@@ -15,19 +15,11 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
           python-version: "3.13"
-
-      - name: Install dependencies
-        # Installs dependencies from uv.lock and installs the current package
-        run: uv sync --frozen
 
       - name: Run script
         env:
@@ -36,9 +28,8 @@ jobs:
           PREPREFIX: ${{ vars.HDX_USER_AGENT_PREPREFIX }}
           USER_AGENT: ${{ vars.USER_AGENT }}
           EXTRA_PARAMS: ${{ vars.EXTRA_PARAMS }}
-        # 'uv run' executes the command inside the environment created by 'uv sync'
-        run: |
-          uv run python -m hdx.scraper.unep
+
+        run: uv run --frozen python -m hdx.scraper.unep
 
       - name: Send mail
         if: failure()
