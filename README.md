@@ -1,9 +1,9 @@
-# Collector for Unep Datasets
+# Collector for UNEP Datasets
 [![Build Status](https://github.com/OCHA-DAP/hdx-scraper-unep/actions/workflows/run-python-tests.yaml/badge.svg)](https://github.com/OCHA-DAP/hdx-scraper-unep/actions/workflows/run-python-tests.yaml)
 [![Coverage Status](https://coveralls.io/repos/github/OCHA-DAP/hdx-scraper-unep/badge.svg?branch=main&ts=1)](https://coveralls.io/github/OCHA-DAP/hdx-scraper-unep?branch=main)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-This script ...
+This script downloads data from the UNEP feature server and creates datasets on HDX.
 
 ## Development
 

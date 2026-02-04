@@ -1,5 +1,5 @@
 #!/usr/bin/python
-"""Unep scraper"""
+"""UNEP scraper"""
 
 import logging
 import os
