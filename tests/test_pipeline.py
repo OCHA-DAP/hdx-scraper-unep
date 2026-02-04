@@ -62,6 +62,7 @@ class TestPipeline:
                     "owner_org": "ca802a27-cc96-4c7b-aab2-a494a0fa64c9",
                     "package_creator": "HDX Data Systems Team",
                     "private": False,
+                    "subnational": "1",
                     "tags": [
                         {
                             "name": "environment",

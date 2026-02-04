@@ -221,5 +221,6 @@ class Pipeline:
         end_years = sorted(end_years)
         dataset.set_time_period_year_range(start_years[0], end_years[-1])
         dataset.add_tags(self._configuration["tags"])
+        dataset.set_subnational(True)
 
         return dataset

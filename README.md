@@ -66,7 +66,7 @@ you’ve introduced a new package to the source code (i.e. anywhere in `src/`),
 please add it to the `project.dependencies` section of `pyproject.toml` with
 any known version constraints.
 
-To add packages required only for testing, add them to the 
+To add packages required only for testing, add them to the
 `[dependency-groups]`.
 
 Any changes to the dependencies will be automatically reflected in
