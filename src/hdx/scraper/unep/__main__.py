@@ -58,10 +58,12 @@ def main(
                 use_saved=use_saved,
             )
             pipeline = Pipeline(configuration, retriever, tempdir)
-            layer_id_to_type, countries = pipeline.get_layersinfo()
-            for _, country in progress_storing_folder(info, countries, "iso3"):
+            metadata = pipeline.get_netadata()
+            for _, country in progress_storing_folder(
+                info, metadata["countries"], "iso3"
+            ):
                 countryiso = country["iso3"]
-                dataset = pipeline.generate_dataset(layer_id_to_type, countryiso)
+                dataset = pipeline.generate_dataset(metadata, countryiso)
                 if dataset:
                     dataset.update_from_yaml(
                         script_dir_plus_file(

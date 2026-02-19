@@ -15,6 +15,7 @@ from hdx.data.hdxobject import HDXError
 from hdx.data.resource import Resource
 from hdx.location.country import Country
 from hdx.utilities.retriever import Retrieve
+from hdx.utilities.text import smart_split
 
 logger = logging.getLogger(__name__)
 
@@ -40,15 +41,19 @@ class Pipeline:
         )
         return {x["attributes"]["iso3"] for x in response["features"]}
 
-    def get_layersinfo(self) -> tuple[dict, list]:
+    def get_netadata(self) -> dict:
         """
-        Get layers
+        Get metadata including layers and countries
         """
         response = self._retriever.download_json(f"{self._url}?f=json")
 
+        metadata = {}
         layers = response.get("layers", [])
         if not layers:
-            return {}, []
+            return metadata
+        metadata["description"] = smart_split(response["description"])
+        copyright = response["copyrightText"]
+        metadata["citation"] = f"**Citation:** {copyright}"
         layer_id_to_type = {}
         countries = set()
         for layer in layers:
@@ -63,7 +68,9 @@ class Pipeline:
 
             layer_id_to_type[layer_id] = layer_type
             countries.update(self.get_countries(f"{self._url}/{layer_id}"))
-        return layer_id_to_type, [{"iso3": country} for country in sorted(countries)]
+        metadata["layer_id_to_type"] = layer_id_to_type
+        metadata["countries"] = [{"iso3": country} for country in sorted(countries)]
+        return metadata
 
     def get_date_range(self, layer_url: str, countryiso: str) -> tuple[int, int]:
         """
@@ -153,9 +160,7 @@ class Pipeline:
         }
         return Resource(geoservice_resource)
 
-    def generate_dataset(
-        self, layer_id_to_type: dict, countryiso: str
-    ) -> Dataset | None:
+    def generate_dataset(self, metadata: dict, countryiso: str) -> Dataset | None:
         """
         Get layer data from ArcGIS API and create data outputs for HDX
         Return dataset
@@ -164,7 +169,14 @@ class Pipeline:
         countryname = Country.get_country_name_from_iso3(countryiso)
         dataset_name = f"unep_wdpca_{countryiso.lower()}"
         title = f"Protected and Conserved Areas (WDPCA) in {countryname}"
-        dataset = Dataset({"name": dataset_name, "title": title})
+        dataset = Dataset(
+            {
+                "name": dataset_name,
+                "title": title,
+                "notes": metadata["description"],
+                "caveats": metadata["citation"],
+            }
+        )
         try:
             dataset.add_country_location(countryiso)
         except HDXError:
@@ -176,7 +188,7 @@ class Pipeline:
         start_years = []
         end_years = []
         resources = []
-        for layer_id, layer_type in layer_id_to_type.items():
+        for layer_id, layer_type in metadata["layer_id_to_type"].items():
             layer_url = f"{self._url}/{layer_id}"
             start_year, end_year = self.get_date_range(layer_url, countryiso)
             if not start_year:
