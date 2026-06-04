@@ -41,7 +41,9 @@ class TestPipeline:
                     "dataset_preview": "resource_id",
                     "dataset_source": "UNEP-WCMC, IUCN",
                     "groups": [{"name": "bol"}],
-                    "license_id": "cc-by-igo",
+                    "license_id": "hdx-other",
+                    "license_other": "[UNEP-WCMC WDPCA licence "
+                    "information](https://www.unep-wcmc.org/en/wdpa-data-license)",
                     "maintainer": "196196be-6037-4488-8b71-d786adf4c081",
                     "methodology": "Other",
                     "methodology_other": "The WDPCA is a joint project between UN Environment "
