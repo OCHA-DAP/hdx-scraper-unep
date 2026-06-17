@@ -26,7 +26,11 @@ class Pipeline:
         self._url = configuration["url"]
         self._retriever = retriever
         self._tempdir = tempdir
+        self._last_temp_files = []
         os.environ["OGR_ORGANIZE_POLYGONS"] = "SKIP"
+
+    def get_last_temp_files(self) -> list:
+        return self._last_temp_files
 
     def get_countries(self, layer_url: str) -> set:
         query = {
@@ -120,6 +124,7 @@ class Pipeline:
         geojson_resource.set_format("geojson")
         filepath = join(self._tempdir, filename)
         gdf.to_file(filepath, driver="GeoJSON")
+        self._last_temp_files.append(filepath)
         geojson_resource.set_file_to_upload(filepath)
         return geojson_resource
 
@@ -137,6 +142,7 @@ class Pipeline:
         filepath = join(self._tempdir, filename)
         df_attributes = gdf.drop(columns="geometry")
         df_attributes.to_csv(filepath, index=False)
+        self._last_temp_files.append(filepath)
         csv_resource.set_file_to_upload(filepath)
         return csv_resource
 
@@ -184,6 +190,7 @@ class Pipeline:
             return None
         base_filename = self._configuration["base_filename"]
         gpkg_filepath = join(self._tempdir, f"{base_filename}.gpkg")
+        self._last_temp_files = [gpkg_filepath]
         Path(gpkg_filepath).unlink(missing_ok=True)
         start_years = []
         end_years = []

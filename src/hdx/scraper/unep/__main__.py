@@ -7,6 +7,7 @@ script then creates in HDX.
 
 import logging
 from os.path import expanduser, join
+from pathlib import Path
 
 from hdx.api.configuration import Configuration
 from hdx.data.user import User
@@ -76,12 +77,13 @@ def main(
                         updated_by_script=_UPDATED_BY_SCRIPT,
                         batch=info["batch"],
                     )
+                    for f in pipeline.get_last_temp_files():
+                        Path(f).unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
     facade(
         main,
-        #        hdx_site="dev",
         user_agent_config_yaml=join(expanduser("~"), ".useragents.yaml"),
         user_agent_lookup=_LOOKUP,
         project_config_yaml=script_dir_plus_file(
