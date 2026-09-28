@@ -1,6 +1,25 @@
 # Collector specific configuration
-url: "https://data-gis.unep-wcmc.org/server/rest/services/ProtectedPlanet/WDPCA/FeatureServer"
+featureserver_url: "https://services5.arcgis.com/Mj0hjvkNtV7NRhA7/arcgis/rest/services/WDPCA_v5/FeatureServer/{layer_id}"
+download_url: "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/{file_format}?layers={layer_id}&where=ISO3+%3D+%27{iso3}%27'&redirect=true"
+item_id: "8664a0d82205448e942c1189775846be"
 base_filename: "protected_conserved_areas_WDPCA"
 tags:
   - "environment"
   - "geodata"
+layer_id_to_type:
+  0: "points"
+  1: "polygons"
+file_formats:
+  geopackage:
+    file_ext: "gpkg"
+    description: "GeoPackage format of the summary of {layer_type}"
+  geojson:
+    file_ext: "geojson"
+    description: "GeoJSON format of the summary of {layer_type}"
+  csv:
+    file_ext: "csv"
+    description: "CSV format of the summary of {layer_type}"
+  geoservice:
+    name: "{layer_type} GeoService"
+    description: "ArcGIS Map Service of the summary of {layer_type}"
+    format: "geoservice"

@@ -13,12 +13,7 @@ ENV UV_LINK_MODE=copy
 # 1. Install System Dependencies
 RUN --mount=type=cache,target=/var/cache/apk \
     apk add --upgrade \
-    git \
-    build-base \
-    gdal-dev \
-    geos-dev \
-    proj-dev \
-    linux-headers
+    git 
 
 # 2. Copy only dependency locks first for layer caching
 COPY pyproject.toml uv.lock ./
@@ -45,13 +40,6 @@ ENV PYTHONUNBUFFERED=1
 
 # Align with Stage 1
 WORKDIR /srv
-
-# Install Runtime Libraries (if Geo requested)
-RUN --mount=type=cache,target=/var/cache/apk \
-    apk add --upgrade \
-    gdal \
-    geos \
-    proj
 
 # 1. Copy the entire working directory (includes .venv and root scripts like run.py)
 COPY --from=builder /srv /srv
