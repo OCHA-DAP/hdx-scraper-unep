@@ -2,20 +2,20 @@
 """UNEP scraper"""
 
 import logging
-import os
-from os.path import basename, join
-from pathlib import Path
+from os.path import join
 from urllib.parse import urlencode
 
-from geopandas import read_file
-from geopandas.geodataframe import GeoDataFrame
+from arcgis.gis import GIS
 from hdx.api.configuration import Configuration
 from hdx.data.dataset import Dataset
 from hdx.data.hdxobject import HDXError
 from hdx.data.resource import Resource
 from hdx.location.country import Country
+from hdx.utilities.base_downloader import DownloadError
+from hdx.utilities.loader import load_json
 from hdx.utilities.retriever import Retrieve
-from hdx.utilities.text import smart_split
+from hdx.utilities.saver import save_json
+from html2text import html2text
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +23,12 @@ logger = logging.getLogger(__name__)
 class Pipeline:
     def __init__(self, configuration: Configuration, retriever: Retrieve, tempdir: str):
         self._configuration = configuration
-        self._url = configuration["url"]
+        self._featureserver_url = configuration["featureserver_url"]
+        self._download_url = configuration["download_url"]
+        self._item_id = configuration["item_id"]
         self._retriever = retriever
         self._tempdir = tempdir
         self._last_temp_files = []
-        os.environ["OGR_ORGANIZE_POLYGONS"] = "SKIP"
 
     def get_last_temp_files(self) -> list:
         return self._last_temp_files
@@ -45,34 +46,31 @@ class Pipeline:
         )
         return {x["attributes"]["iso3"] for x in response["features"]}
 
-    def get_netadata(self) -> dict:
+    def get_metadata(self) -> dict:
         """
         Get metadata including layers and countries
         """
-        response = self._retriever.download_json(f"{self._url}?f=json")
-
+        if self._retriever.use_saved:
+            response = load_json(join(self._retriever.saved_dir, "gis_response.json"))
+        else:
+            gis = GIS()
+            response = gis.content.get(self._item_id)
+            if self._retriever.save:
+                save_json(
+                    response, join(self._retriever.saved_dir, "gis_response.json")
+                )
         metadata = {}
-        layers = response.get("layers", [])
-        if not layers:
-            return metadata
-        metadata["description"] = smart_split(response["description"])
-        copyright = response["copyrightText"]
+        description = html2text(response["description"])
+        metadata["description"] = description.replace("\n", " ").replace(
+            "  ", "  \n  \n"
+        )
+        copyright = html2text(response["accessInformation"])
+        copyright = copyright.replace("\n", " ").replace("  ", "")
         metadata["citation"] = f"**Citation:** {copyright}"
-        layer_id_to_type = {}
         countries = set()
-        for layer in layers:
-            if layer["type"] != "Feature Layer":
-                continue
-            layer_id = layer["id"]
-            geometry_type = layer["geometryType"]
-            if "point" in geometry_type:
-                layer_type = "points"
-            else:
-                layer_type = "polygons"
-
-            layer_id_to_type[layer_id] = layer_type
-            countries.update(self.get_countries(f"{self._url}/{layer_id}"))
-        metadata["layer_id_to_type"] = layer_id_to_type
+        for layer_id in self._configuration["layer_id_to_type"]:
+            layer_url = self._featureserver_url.format(layer_id=layer_id)
+            countries.update(self.get_countries(layer_url))
         metadata["countries"] = [{"iso3": country} for country in sorted(countries)]
         return metadata
 
@@ -107,64 +105,17 @@ class Pipeline:
 
         attrs = stats_response["features"][0]["attributes"]
         start_year = attrs.get("start_year")
-        end_year = attrs.get("end_year")
+        end_year = attrs.get("end_Year")
 
         return start_year, end_year
 
-    def generate_geojson(
-        self, gdf: GeoDataFrame, base_filename: str, layer_type: str
-    ) -> Resource:
-        filename = f"{base_filename}_{layer_type}.geojson"
-        geojson_resource = Resource(
-            {
-                "name": filename,
-                "description": f"GeoJSON format of the summary of {layer_type}",
-            }
-        )
-        geojson_resource.set_format("geojson")
-        filepath = join(self._tempdir, filename)
-        gdf.to_file(filepath, driver="GeoJSON")
-        self._last_temp_files.append(filepath)
-        geojson_resource.set_file_to_upload(filepath)
-        return geojson_resource
-
-    def generate_csv(
-        self, gdf: GeoDataFrame, base_filename: str, layer_type: str
-    ) -> Resource:
-        filename = f"{base_filename}_{layer_type}.csv"
-        csv_resource = Resource(
-            {
-                "name": filename,
-                "description": f"CSV format of the summary of {layer_type}",
-            }
-        )
-        csv_resource.set_format("csv")
-        filepath = join(self._tempdir, filename)
-        df_attributes = gdf.drop(columns="geometry")
-        df_attributes.to_csv(filepath, index=False)
-        self._last_temp_files.append(filepath)
-        csv_resource.set_file_to_upload(filepath)
-        return csv_resource
-
-    def generate_gpkg(self, gpkg_filepath: str) -> Resource:
-        gpkg_resource = Resource(
-            {
-                "name": basename(gpkg_filepath),
-                "description": "GPKG of point and polygon data",
-            }
-        )
-        gpkg_resource.set_format("gpkg")
-        gpkg_resource.set_file_to_upload(gpkg_filepath)
-        return gpkg_resource
-
-    def generate_geoservice(self, layer_url: str, layer_type: str) -> Resource:
-        geoservice_resource = {
-            "name": f"{layer_type} GeoService",
-            "description": f"ArcGIS Map Service of the summary of {layer_type}",
-            "url": layer_url,
-            "format": "GeoService",
-        }
-        return Resource(geoservice_resource)
+    def warm_download(self, download_url: str) -> None:
+        try:
+            download_file = self._retriever.download_file(download_url)
+        except DownloadError:
+            return
+        self._last_temp_files.append(download_file)
+        return
 
     def generate_dataset(self, metadata: dict, countryiso: str) -> Dataset | None:
         """
@@ -189,57 +140,54 @@ class Pipeline:
             logger.error(f"Couldn't find country {countryiso}, skipping")
             return None
         base_filename = self._configuration["base_filename"]
-        gpkg_filepath = join(self._tempdir, f"{base_filename}.gpkg")
-        self._last_temp_files = [gpkg_filepath]
-        Path(gpkg_filepath).unlink(missing_ok=True)
         start_years = []
         end_years = []
         resources = []
-        for layer_id, layer_type in metadata["layer_id_to_type"].items():
-            layer_url = f"{self._url}/{layer_id}"
+        for layer_id, layer_type in self._configuration["layer_id_to_type"].items():
+            layer_url = self._featureserver_url.format(layer_id=layer_id)
             start_year, end_year = self.get_date_range(layer_url, countryiso)
             if not start_year:
                 continue
             start_years.append(start_year)
             end_years.append(end_year)
-            query = {
-                "f": "json",
-                "orderByFields": "OBJECTID",
-                "outFields": "*",
-                "geometryPrecision": 10,
-                "maxAllowableOffset": 10,
-                "where": f"ISO3='{countryiso}'",
-            }
-            query_url = f"{layer_url}/query?{urlencode(query)}"
-            logger.info(f"Querying {query_url}")
-            if self._retriever.save or self._retriever.use_saved:
-                query_url = str(self._retriever.download_file(query_url))
-            gdf = read_file("ESRIJSON:" + query_url)
-            logger.info(f"Adding GPKG data for {layer_type}")
-            gdf.to_file(gpkg_filepath, layer=layer_type, driver="GPKG")
-            logger.info(f"Adding GeoJSON data for {layer_type}")
-            resources.append(self.generate_geojson(gdf, base_filename, layer_type))
-            logger.info(f"Adding csv data for {layer_type}")
-            resources.append(self.generate_csv(gdf, base_filename, layer_type))
-            logger.info(f"Adding GeoService for {layer_type}")
-            resources.append(self.generate_geoservice(layer_url, layer_type))
+            for file_format, info in self._configuration["file_formats"].items():
+                if file_format == "geoservice":
+                    name = info["name"].format(layer_type=layer_type)
+                    download_url = self._featureserver_url.format(layer_id=layer_id)
+                else:
+                    name = f"{base_filename}_{layer_type}.{info['file_ext']}"
+                    download_url = self._download_url.format(
+                        file_format=file_format, iso3=countryiso, layer_id=layer_id
+                    )
+                    if file_format != "csv":
+                        download_url = f"{download_url}&spatialRefId=4326"
+                    if not self._retriever.use_saved:
+                        self.warm_download(download_url)
+                resource = Resource(
+                    {
+                        "name": name,
+                        "description": info["description"].format(
+                            layer_type=layer_type
+                        ),
+                        "url": download_url,
+                    }
+                )
+                resource.set_format(info.get("format", info.get("file_ext")))
+                resources.append(resource)
 
         if len(start_years) == 0:
             logger.error(f"No data for {countryiso}, skipping")
             return None
 
-        resources.insert(0, self.generate_gpkg(gpkg_filepath))
-        dataset.preview_off()
-        for resource in reversed(resources):
-            if resource.get_format() == "geojson":
-                resource.enable_dataset_preview()
-                dataset.preview_resource()
-                break
         dataset.add_update_resources(resources)
-        start_years = sorted(start_years)
-        end_years = sorted(end_years)
-        dataset.set_time_period_year_range(start_years[0], end_years[-1])
+        dataset.set_time_period_year_range(min(start_years), max(end_years))
         dataset.add_tags(self._configuration["tags"])
         dataset.set_subnational(True)
+
+        dataset.preview_off()
+        for resource in dataset.get_resources():
+            if resource.get_format() == "geojson":
+                resource.enable_dataset_preview()
+        dataset.preview_resource()
 
         return dataset
