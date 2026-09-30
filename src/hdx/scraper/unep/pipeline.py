@@ -2,7 +2,6 @@
 """UNEP scraper"""
 
 import logging
-import os
 from os.path import join
 from urllib.parse import urlencode
 
@@ -29,7 +28,9 @@ class Pipeline:
         self._retriever = retriever
         self._tempdir = tempdir
         self._last_temp_files = []
-        os.environ["OGR_ORGANIZE_POLYGONS"] = "SKIP"
+
+    def get_last_temp_files(self) -> list:
+        return self._last_temp_files
 
     def get_countries(self, layer_url: str) -> set:
         query = {
@@ -107,6 +108,11 @@ class Pipeline:
 
         return start_year, end_year
 
+    def warm_download(self, download_url: str) -> None:
+        download_file = self._retriever.download_file(download_url)
+        self._last_temp_files.append(download_file)
+        return
+
     def generate_dataset(self, metadata: dict, countryiso: str) -> Dataset | None:
         """
         Get layer data from ArcGIS API and create data outputs for HDX
@@ -151,6 +157,8 @@ class Pipeline:
                     )
                     if file_format != "csv":
                         download_url = f"{download_url}&spatialRefId=4326"
+                    if not self._retriever.use_saved:
+                        self.warm_download(download_url)
                 resource = Resource(
                     {
                         "name": name,
