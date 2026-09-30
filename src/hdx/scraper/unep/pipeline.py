@@ -172,4 +172,10 @@ class Pipeline:
         dataset.add_tags(self._configuration["tags"])
         dataset.set_subnational(True)
 
+        dataset.preview_off()
+        for resource in dataset.get_resources():
+            if resource.get_format() == "geojson":
+                resource.enable_dataset_preview()
+        dataset.preview_resource()
+
         return dataset
