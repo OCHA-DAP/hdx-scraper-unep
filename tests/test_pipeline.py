@@ -63,19 +63,19 @@ class TestPipeline:
                     {
                         "name": "protected_conserved_areas_WDPCA_points.gpkg",
                         "description": "GeoPackage format of the summary of points",
-                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geopackage?layers=0&where=ISO3+%3D+%27BOL%27'&redirect=true&spatialRefId=4326",
+                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geopackage?layers=0&where=ISO3+%3D+%27BOL%27&redirect=true&spatialRefId=4326",
                         "format": "geopackage",
                     },
                     {
                         "name": "protected_conserved_areas_WDPCA_points.geojson",
                         "description": "GeoJSON format of the summary of points",
-                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geojson?layers=0&where=ISO3+%3D+%27BOL%27'&redirect=true&spatialRefId=4326",
+                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geojson?layers=0&where=ISO3+%3D+%27BOL%27&redirect=true&spatialRefId=4326",
                         "format": "geojson",
                     },
                     {
                         "name": "protected_conserved_areas_WDPCA_points.csv",
                         "description": "CSV format of the summary of points",
-                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/csv?layers=0&where=ISO3+%3D+%27BOL%27'&redirect=true",
+                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/csv?layers=0&where=ISO3+%3D+%27BOL%27&redirect=true",
                         "format": "csv",
                     },
                     {
@@ -87,19 +87,19 @@ class TestPipeline:
                     {
                         "name": "protected_conserved_areas_WDPCA_polygons.gpkg",
                         "description": "GeoPackage format of the summary of polygons",
-                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geopackage?layers=1&where=ISO3+%3D+%27BOL%27'&redirect=true&spatialRefId=4326",
+                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geopackage?layers=1&where=ISO3+%3D+%27BOL%27&redirect=true&spatialRefId=4326",
                         "format": "geopackage",
                     },
                     {
                         "name": "protected_conserved_areas_WDPCA_polygons.geojson",
                         "description": "GeoJSON format of the summary of polygons",
-                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geojson?layers=1&where=ISO3+%3D+%27BOL%27'&redirect=true&spatialRefId=4326",
+                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/geojson?layers=1&where=ISO3+%3D+%27BOL%27&redirect=true&spatialRefId=4326",
                         "format": "geojson",
                     },
                     {
                         "name": "protected_conserved_areas_WDPCA_polygons.csv",
                         "description": "CSV format of the summary of polygons",
-                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/csv?layers=1&where=ISO3+%3D+%27BOL%27'&redirect=true",
+                        "url": "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/csv?layers=1&where=ISO3+%3D+%27BOL%27&redirect=true",
                         "format": "csv",
                     },
                     {

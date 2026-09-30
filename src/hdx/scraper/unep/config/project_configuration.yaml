@@ -1,6 +1,6 @@
 # Collector specific configuration
 featureserver_url: "https://services5.arcgis.com/Mj0hjvkNtV7NRhA7/arcgis/rest/services/WDPCA_v5/FeatureServer/{layer_id}"
-download_url: "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/{file_format}?layers={layer_id}&where=ISO3+%3D+%27{iso3}%27'&redirect=true"
+download_url: "https://hub.arcgis.com/api/download/v1/items/8664a0d82205448e942c1189775846be/{file_format}?layers={layer_id}&where=ISO3+%3D+%27{iso3}%27&redirect=true"
 item_id: "8664a0d82205448e942c1189775846be"
 base_filename: "protected_conserved_areas_WDPCA"
 tags:
