@@ -11,6 +11,7 @@ from hdx.data.dataset import Dataset
 from hdx.data.hdxobject import HDXError
 from hdx.data.resource import Resource
 from hdx.location.country import Country
+from hdx.utilities.base_downloader import DownloadError
 from hdx.utilities.loader import load_json
 from hdx.utilities.retriever import Retrieve
 from hdx.utilities.saver import save_json
@@ -109,7 +110,10 @@ class Pipeline:
         return start_year, end_year
 
     def warm_download(self, download_url: str) -> None:
-        download_file = self._retriever.download_file(download_url)
+        try:
+            download_file = self._retriever.download_file(download_url)
+        except DownloadError:
+            return
         self._last_temp_files.append(download_file)
         return
 
