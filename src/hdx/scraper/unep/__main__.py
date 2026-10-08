@@ -59,7 +59,7 @@ def main(
                 use_saved=use_saved,
             )
             pipeline = Pipeline(configuration, retriever, tempdir)
-            metadata = pipeline.get_netadata()
+            metadata = pipeline.get_metadata()
             for _, country in progress_storing_folder(
                 info, metadata["countries"], "iso3"
             ):
@@ -77,8 +77,8 @@ def main(
                         updated_by_script=_UPDATED_BY_SCRIPT,
                         batch=info["batch"],
                     )
-                    for f in pipeline.get_last_temp_files():
-                        Path(f).unlink(missing_ok=True)
+                for f in pipeline.get_last_temp_files():
+                    Path(f).unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
