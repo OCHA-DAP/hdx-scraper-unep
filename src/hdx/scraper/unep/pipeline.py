@@ -2,19 +2,15 @@
 """UNEP scraper"""
 
 import logging
-from os.path import join
 from urllib.parse import urlencode
 
-from arcgis.gis import GIS
 from hdx.api.configuration import Configuration
 from hdx.data.dataset import Dataset
 from hdx.data.hdxobject import HDXError
 from hdx.data.resource import Resource
 from hdx.location.country import Country
 from hdx.utilities.base_downloader import DownloadError
-from hdx.utilities.loader import load_json
 from hdx.utilities.retriever import Retrieve
-from hdx.utilities.saver import save_json
 from html2text import html2text
 
 logger = logging.getLogger(__name__)
@@ -50,15 +46,9 @@ class Pipeline:
         """
         Get metadata including layers and countries
         """
-        if self._retriever.use_saved:
-            response = load_json(join(self._retriever.saved_dir, "gis_response.json"))
-        else:
-            gis = GIS()
-            response = gis.content.get(self._item_id)
-            if self._retriever.save:
-                save_json(
-                    response, join(self._retriever.saved_dir, "gis_response.json")
-                )
+        response = self._retriever.download_json(
+            self._featureserver_url.format(layer_id="info/itemInfo?f=pjson")
+        )
         metadata = {}
         description = html2text(response["description"])
         metadata["description"] = description.replace("\n", " ").replace(

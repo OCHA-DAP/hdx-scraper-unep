@@ -13,7 +13,6 @@ name = "hdx-scraper-unep"
 dynamic = ["version"]
 requires-python = ">=3.13"
 dependencies = [
-  "arcgis",
   "hdx-python-api>=6.6.8",
   "hdx-python-country>=4.1.1",
   "hdx-python-utilities>=4.1.2",
