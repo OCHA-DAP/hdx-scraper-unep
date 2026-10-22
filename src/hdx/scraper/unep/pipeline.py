@@ -2,6 +2,7 @@
 """UNEP scraper"""
 
 import logging
+from time import sleep
 from urllib.parse import urlencode
 
 from hdx.api.configuration import Configuration
@@ -40,6 +41,7 @@ class Pipeline:
         response = self._retriever.download_json(
             f"{layer_url}/query?{urlencode(query)}"
         )
+        sleep(1)
         return {x["attributes"]["iso3"] for x in response["features"]}
 
     def get_metadata(self) -> dict:
@@ -92,6 +94,7 @@ class Pipeline:
         stats_response = self._retriever.download_json(
             f"{layer_url}/query?{urlencode(stats_query)}"
         )
+        sleep(1)
 
         attrs = stats_response["features"][0]["attributes"]
         start_year = attrs.get("start_year")
