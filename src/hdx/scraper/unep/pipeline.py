@@ -2,6 +2,7 @@
 """UNEP scraper"""
 
 import logging
+from pathlib import Path
 from time import sleep
 from urllib.parse import urlencode
 
@@ -25,10 +26,7 @@ class Pipeline:
         self._item_id = configuration["item_id"]
         self._retriever = retriever
         self._tempdir = tempdir
-        self._last_temp_files = []
-
-    def get_last_temp_files(self) -> list:
-        return self._last_temp_files
+        self._download_urls = []
 
     def get_countries(self, layer_url: str) -> set:
         query = {
@@ -41,7 +39,7 @@ class Pipeline:
         response = self._retriever.download_json(
             f"{layer_url}/query?{urlencode(query)}"
         )
-        sleep(1)
+        sleep(0.5)
         return {x["attributes"]["iso3"] for x in response["features"]}
 
     def get_metadata(self) -> dict:
@@ -94,7 +92,7 @@ class Pipeline:
         stats_response = self._retriever.download_json(
             f"{layer_url}/query?{urlencode(stats_query)}"
         )
-        sleep(1)
+        sleep(0.5)
 
         attrs = stats_response["features"][0]["attributes"]
         start_year = attrs.get("start_year")
@@ -102,12 +100,14 @@ class Pipeline:
 
         return start_year, end_year
 
-    def warm_download(self, download_url: str) -> None:
-        try:
-            download_file = self._retriever.download_file(download_url)
-        except DownloadError:
-            return
-        self._last_temp_files.append(download_file)
+    def warm_downloads(self) -> None:
+        for download_url in self._download_urls:
+            try:
+                download_file = self._retriever.download_file(download_url)
+            except DownloadError:
+                continue
+            Path(download_file).unlink(missing_ok=True)
+            sleep(0.5)
         return
 
     def generate_dataset(self, metadata: dict, countryiso: str) -> Dataset | None:
@@ -154,8 +154,7 @@ class Pipeline:
                     )
                     if file_format != "csv":
                         download_url = f"{download_url}&spatialRefId=4326"
-                    if not self._retriever.use_saved:
-                        self.warm_download(download_url)
+                    self._download_urls.append(download_url)
                 resource = Resource(
                     {
                         "name": name,
