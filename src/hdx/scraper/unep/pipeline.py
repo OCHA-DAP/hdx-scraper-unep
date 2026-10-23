@@ -107,6 +107,7 @@ class Pipeline:
             except DownloadError:
                 continue
             Path(download_file).unlink(missing_ok=True)
+            sleep(0.5)
         return
 
     def generate_dataset(self, metadata: dict, countryiso: str) -> Dataset | None:
