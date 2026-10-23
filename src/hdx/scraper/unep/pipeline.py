@@ -154,8 +154,8 @@ class Pipeline:
                     )
                     if file_format != "csv":
                         download_url = f"{download_url}&spatialRefId=4326"
-                    if not self._retriever.use_saved:
-                        self.warm_download(download_url)
+                    # if not self._retriever.use_saved:
+                    #     self.warm_download(download_url)
                 resource = Resource(
                     {
                         "name": name,
